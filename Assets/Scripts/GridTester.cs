@@ -13,11 +13,11 @@ public class GridTester : MonoBehaviour
     }
     [SerializeField] private modeLeftClick _modeLeftClick;
 
-    private Grid<bool> grid;
+    private Grid grid;
     // Start is called before the first frame update
     private void Start()
     {
-        grid = new Grid<bool>(20, 20, 5f, new Vector3 (-50, -50, 0), gridNodeTexture);
+        grid = new Grid(20, 20, 5f, new Vector3 (-50, -50, 0), gridNodeTexture);
     }
 
     private void Update()
@@ -30,10 +30,10 @@ public class GridTester : MonoBehaviour
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                     if (Physics.Raycast(ray, out RaycastHit hit))
                     {
-                        /*
+                        
                         int value_curr = grid.GetValue(hit.point);
                         grid.SetValue(hit.point, value_curr + 1);
-                        */
+                        
                     }
                 }
                 break;
@@ -55,7 +55,7 @@ public class GridTester : MonoBehaviour
                                 float mult = 1f / dist;
                                 int value_falloff = (int)((float)value * mult);
 
-                                /*
+                                
                                 grid.AddValue(origin_x + x, origin_y + y, value_falloff);
                                 if (x != 0)
                                 {
@@ -69,7 +69,7 @@ public class GridTester : MonoBehaviour
                                 {
                                     grid.AddValue(origin_x - x, origin_y - y, value_falloff);
                                 }
-                                */
+                                
                                 //grid.AddValue(origin_x, origin_y, 1);
                                 
                             }

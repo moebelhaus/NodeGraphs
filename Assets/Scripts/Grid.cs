@@ -5,7 +5,7 @@ using CodeMonkey.Utils;
 using Unity.VisualScripting;
 using System;
 
-public class Grid<TGridObject>
+public class Grid
 {
     public const int HEAT_MAP_MAX_VALUE = 100;
     public const int HEAT_MAP_MIN_VALUE = 0;
@@ -21,7 +21,7 @@ public class Grid<TGridObject>
     private int height;
     private float cellSize;
     private Vector3 originPosition;
-    private TGridObject[,] gridArray; //multi dim array
+    private int[,] gridArray; //multi dim array
     private TextMesh[,] textMeshArray;
     private GameObject[,] collPlaneArray;
     private Texture2D gridNodeTexture;
@@ -35,7 +35,7 @@ public class Grid<TGridObject>
         this.originPosition = originPosition;
         this.gridNodeTexture = gridnodeTexture;
 
-        gridArray = new TGridObject[width, height]; //init array with "width x height" entries
+        gridArray = new int[width, height]; //init array with "width x height" entries
         textMeshArray = new TextMesh[width, height];
         collPlaneArray = new GameObject[width, height];
 
@@ -65,9 +65,9 @@ public class Grid<TGridObject>
             OnGridValueChanged += (object sender, OnGridValueChangedEventArgs eventArgs) =>
             {
                 textMeshArray[eventArgs.x, eventArgs.y].text = gridArray[eventArgs.x, eventArgs.y].ToString();
-                //float uf = (int)(float)gridArray[eventArgs.x, eventArgs.y] / (float)HEAT_MAP_MAX_VALUE * 100f;
-                //int u = (int)uf;
-                //collPlaneArray[eventArgs.x, eventArgs.y].GetComponent<Renderer>().material.color = gridNodeTexture.GetPixel(u, 0);
+                float uf = (int)(float)gridArray[eventArgs.x, eventArgs.y] / (float)HEAT_MAP_MAX_VALUE * 100f;
+                int u = (int)uf;
+                collPlaneArray[eventArgs.x, eventArgs.y].GetComponent<Renderer>().material.color = gridNodeTexture.GetPixel(u, 0);
             };
         }
     }
@@ -88,24 +88,28 @@ public class Grid<TGridObject>
         y = Mathf.FloorToInt((worldPosition - originPosition).y / cellSize);
     }
 
-    public void SetValue(int x, int y, TGridObject value)
+    public void SetValue(int x, int y, int value)
     {
         if (x >= 0 && y >= 0 && x < width && y < height)
         {
-            gridArray[x, y] = value;
+            gridArray[x, y] = Mathf.Clamp(value, HEAT_MAP_MIN_VALUE, HEAT_MAP_MAX_VALUE);
             if (OnGridValueChanged != null) OnGridValueChanged(this, new OnGridValueChangedEventArgs { x = x, y = y });
             //textMeshArray[x, y].text = gridArray[x, y].ToString();
         }
     }
 
-    public void SetValue(Vector3 worldPosition, TGridObject value)
+    public void SetValue(Vector3 worldPosition, int value)
     {
         int x, y;
         GetXY(worldPosition, out x, out y);
         SetValue(x, y, value);
     }
 
-    public TGridObject GetValue(int x, int y)
+    public void AddValue(int x, int y, int value)
+    {
+        SetValue(x, y, GetValue(x, y) + value);
+    }
+    public int GetValue(int x, int y)
     {
         if (x >= 0 && y >= 0 && x < width && y < height)
         {
@@ -113,11 +117,11 @@ public class Grid<TGridObject>
         }
         else
         {
-            return default(TGridObject);
+            return default(int);
         }
     }
 
-    public TGridObject GetValue(Vector3 worldPosition)
+    public int GetValue(Vector3 worldPosition)
     {
         int x, y;
         GetXY(worldPosition, out x, out y);
